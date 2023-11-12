@@ -28,15 +28,12 @@ jobs:
             const prNumber = ${{ github.event.pull_request.number }};
             const repository = ${{ github.repository }};
             const issueLink = `https://github.com/${repository}/issues/${issueNumber}`;
-            let body = ${{ github.event.pull_request.body }};
+            let originalBody = ${{ github.event.pull_request.body }};
+            let body = originalBody.includes(issueLink) ? originalBody : originalBody + `\n\nLinked Issue: [#${issueNumber}](${issueLink})`;
 
-            // Adding issue link to the PR description
-            if (!body.includes(issueLink)) {
-              body += `\n\nLinked Issue: [#${issueNumber}](${issueLink})`;
-              github.rest.pulls.update({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: prNumber,
-                body: body
-              });
-            }
+            github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+              body: body
+            });
