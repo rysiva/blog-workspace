@@ -2,7 +2,9 @@
   "name": "@blog-workspace/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "prepare": "husky install"
+  },
   "private": true,
   "packageManager": "pnpm@8.7.5",
   "engines": {
