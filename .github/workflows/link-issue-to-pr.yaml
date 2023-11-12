@@ -2,25 +2,41 @@ name: Link Issue to PR
 
 on:
   pull_request:
-    types: [opened, edited]
+    types: [opened, synchronize]
 
 jobs:
-  link-issue:
+  link-issue-in-description:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - name: Extract Issue Number from Branch Name
         id: extract
-        run: echo "::set-output name=issue_number::$(echo ${{ github.head_ref }} | grep -o -E '^\d+')"
-      - name: Link Issue in PR
+        run: |
+          BRANCH_NAME="${{ github.head_ref }}"
+          ISSUE_NUMBER=$(echo $BRANCH_NAME | grep -oE '[0-9]+$')
+          echo "::set-output name=issue_number::$ISSUE_NUMBER"
+
+      - name: Link Issue in PR Description
         if: steps.extract.outputs.issue_number != ''
         uses: actions/github-script@v5
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const issueNumber = ${{ steps.extract.outputs.issue_number }};
-            github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-              body: `Linked to PR: #${{ github.event.pull_request.number }}`
-            });
+            const prNumber = ${{ github.event.pull_request.number }};
+            const repository = ${{ github.repository }};
+            const issueLink = `https://github.com/${repository}/issues/${issueNumber}`;
+            let body = ${{ github.event.pull_request.body }};
+
+            // Adding issue link to the PR description
+            if (!body.includes(issueLink)) {
+              body += `\n\nLinked Issue: [#${issueNumber}](${issueLink})`;
+              github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+                body: body
+              });
+            }
