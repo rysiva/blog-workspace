@@ -1,0 +1,26 @@
+name: Link Issue to PR
+
+on:
+  pull_request:
+    types: [opened, edited]
+
+jobs:
+  link-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract Issue Number from Branch Name
+        id: extract
+        run: echo "::set-output name=issue_number::$(echo ${{ github.head_ref }} | grep -o -E '^\d+')"
+      - name: Link Issue in PR
+        if: steps.extract.outputs.issue_number != ''
+        uses: actions/github-script@v5
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const issueNumber = ${{ steps.extract.outputs.issue_number }};
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: `Linked to PR: #${{ github.event.pull_request.number }}`
+            });
