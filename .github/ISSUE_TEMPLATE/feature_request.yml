@@ -1,0 +1,34 @@
+name: New Feature
+description: 新しい機能や改善
+labels: ['enhancement']
+assignees:
+  - rysiva
+body:
+  - type: textarea
+    id: as-is
+    attributes:
+      label: As Is
+      placeholder: 現状を記載する
+    validations:
+      required: false
+  - type: textarea
+    id: to-be
+    attributes:
+      label: To Be
+      placeholder: 理想の状態を記載する
+    validations:
+      required: false
+  - type: textarea
+    id: to-do
+    attributes:
+      label: ToDo
+      placeholder: 改善のための具体的なToDoを記載する
+    validations:
+      required: false
+  - type: textarea
+    id: others
+    attributes:
+      label: Others
+      placeholder: その他、追加情報があれば記載する
+    validations:
+      required: false
